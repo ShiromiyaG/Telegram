@@ -1,0 +1,33 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v3
+
+    - name: Configurar o JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Dar permissão de execução para o gradlew
+      run: chmod +x gradlew
+
+    - name: Compilar com o Gradle
+      run: ./gradlew assembleDebug
+
+    - name: Fazer upload do APK como artefato
+      uses: actions/upload-artifact@v3
+      with:
+        name: telegram-debug.apk
+        path: TMessagesProj/build/outputs/apk/debug/TMessagesProj-debug.apk
