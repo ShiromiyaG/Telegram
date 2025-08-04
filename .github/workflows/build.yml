@@ -13,15 +13,13 @@ jobs:
       # 1. Libera espaço em disco no runner
       # O build do Telegram consome muito espaço, então removemos ferramentas não utilizadas
       - name: Maximize build space
-        uses: easimon/maximize-build-space@v8
+        uses: AdityaGarg8/remove-unwanted-software@v5
         with:
-          root-reserve-mb: 512
-          swap-size-mb: 1024
           remove-dotnet: 'true'
-          remove-android: 'false'
           remove-haskell: 'true'
           remove-codeql: 'true'
           remove-docker-images: 'true'
+          remove-large-packages: 'true'
 
       # 2. Baixa o código do repositório e seus submódulos
       - name: Checkout repository
