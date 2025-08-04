@@ -46,6 +46,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      # 6.1. Cria o arquivo local.properties com o caminho do SDK
+      - name: Set up local.properties
+        run: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+
       # 7. Libera espaço em disco (MOVA PARA ANTES DO BUILD)
       - name: Free disk space
         run: |
