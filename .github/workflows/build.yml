@@ -14,18 +14,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1.1. Cache do Gradle
-      - name: Cache Gradle
-        uses: actions/cache@v3
+      # 2. Libera espaço em disco no runner
+      # O build do Telegram consome muito espaço, então removemos ferramentas não utilizadas
+      - name: Maximize build space
+        uses: easimon/maximize-build-space-action@v10
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}-
+          root-reserve-mb: 512
+          swap-size-mb: 1024
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
 
-      # 2. Configura o ambiente Java (JDK)
+      # 3. Configura o ambiente Java (JDK) e o cache do Gradle
       - name: Set up JDK 17 # O projeto oficial do Telegram requer JDK 17
         uses: actions/setup-java@v4
         with:
@@ -33,13 +35,13 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 3. Cria o arquivo google-services.json a partir dos segredos
+      # 4. Cria o arquivo google-services.json a partir dos segredos
       - name: Create google-services.json
         run: |
           echo "Creating google-services.json in TMessagesProj/"
           echo "${{ secrets.GOOGLE_SERVICES_BASE64 }}" | base64 --decode > TMessagesProj/google-services.json
 
-      # 4. Cria o arquivo BuildVars.java com os segredos
+      # 5. Cria o arquivo BuildVars.java com os segredos
       #    Caminho e nome de arquivo corrigidos para o projeto oficial
       - name: Inject secrets into BuildVars.java
         run: |
@@ -47,13 +49,13 @@ jobs:
           sed -i "s|public static int APP_ID = .*;|public static int APP_ID = ${{ secrets.API_ID }};|g" TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
         shell: bash
 
-      # 5. Decodifica e salva o arquivo keystore no local correto
+      # 6. Decodifica e salva o arquivo keystore no local correto
       - name: Decode Keystore
         run: |
           mkdir -p TMessagesProj/config
           echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > TMessagesProj/config/release.keystore
 
-      # 6. Concede permissão de execução para o gradlew
+      # 7. Concede permissão de execução para o gradlew
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
@@ -67,7 +69,7 @@ jobs:
             -Pandroid.injected.signing.key.password=${{ secrets.RELEASE_KEY_PASSWORD }} \
             -PabiFilters=arm64-v8a
 
-      # 9. Cria uma Release em Rascunho e faz upload dos APKs
+      # 9. Cria uma Release em Rascunho e faz upload do APK
       - name: Create Draft Release with APKs
         uses: softprops/action-gh-release@v2
         with:
