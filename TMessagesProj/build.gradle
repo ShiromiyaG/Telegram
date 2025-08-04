@@ -17,7 +17,7 @@ configurations.all {
 }
 
 dependencies {
-    implementation 'com.arthenica:ffmpeg-kit-full-gpl:5.1.LTS'
+    implementation 'io.github.xch168:ffmpeg-kit-full-gpl:1.0.2'
     implementation 'androidx.fragment:fragment:1.2.0'
     implementation 'androidx.core:core:1.10.1'
     implementation 'androidx.palette:palette:1.0.0'

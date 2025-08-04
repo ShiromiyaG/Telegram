@@ -20,6 +20,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://maven.arthenica.com/public" }
+        //maven { url "https://maven.arthenica.com/public" }
     }
 }

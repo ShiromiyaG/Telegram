@@ -19,7 +19,7 @@ dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
     implementation files('../TMessagesProj/libs/libgsaverification-client.aar')
-    implementation 'com.arthenica:ffmpeg-kit-full-gpl:5.1.LTS'
+    implementation 'io.github.xch168:ffmpeg-kit-full-gpl:1.0.2'
 }
 
 android {
