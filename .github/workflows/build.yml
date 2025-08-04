@@ -30,17 +30,10 @@ jobs:
 
       # 4. Cria o arquivo BuildVars.java com os segredos
       #    Caminho e nome de arquivo corrigidos para o projeto oficial
-      - name: Create BuildVars.java
+      - name: Inject secrets into BuildVars.java
         run: |
-          echo "package org.telegram.messenger;" > TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-          echo "public class BuildVars {" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-          echo "    public static String APP_HASH = \"${{ secrets.API_HASH }}\";" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-          echo "    public static int APP_ID = ${{ secrets.API_ID }};" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-          echo "    public static boolean isBeta = false;" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-          echo "    public static boolean DEBUG_VERSION = false;" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-          echo "    public static boolean LOGS_ENABLED = false;" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-          echo "    public static boolean DEBUG_PRIVATE_VERSION = false;" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-          echo "}" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
+          sed -i "s|public static String APP_HASH = \".*\";|public static String APP_HASH = \"${{ secrets.API_HASH }}\";|g" TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
+          sed -i "s|public static int APP_ID = .*;|public static int APP_ID = ${{ secrets.API_ID }};|g" TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
         shell: bash
 
       # 5. Decodifica e salva o arquivo keystore no local correto
