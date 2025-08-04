@@ -36,14 +36,6 @@ jobs:
           echo "public class BuildVars {" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
           echo "    public static String APP_HASH = \"${{ secrets.API_HASH }}\";" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
           echo "    public static int APP_ID = ${{ secrets.API_ID }};" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-          # Adicione outras variáveis de build aqui se necessário (ex: chaves de HockeyApp)
-          echo "    public static String HOCKEY_APP_HASH = \"\";" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-          echo "    public static String HOCKEY_APP_HASH_DEBUG = \"\";" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-          echo "    public static String BING_SEARCH_KEY = \"\";" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-          echo "    public static String FOURSQUARE_API_KEY = \"\";" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-          echo "    public static String FOURSQUARE_API_ID = \"\";" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-          echo "    public static String FOURSQUARE_API_SECRET = \"\";" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
-          echo "    public static String GIPHY_API_KEY = \"\";" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
           echo "    public static boolean isBeta = false;" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
           echo "}" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
         shell: bash
