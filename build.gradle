@@ -25,5 +25,6 @@ allprojects {
 }
 
 dependencies {
+    // ...other dependencies...
     implementation 'com.arthenica:ffmpeg-kit-full-gpl:5.1.LTS'
 }
