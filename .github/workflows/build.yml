@@ -10,11 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Baixa o código do repositório
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # 2. Libera espaço em disco no runner
+      # 1. Libera espaço em disco no runner
       # O build do Telegram consome muito espaço, então removemos ferramentas não utilizadas
       - name: Maximize build space
         uses: easimon/maximize-build-space@v8
@@ -26,6 +22,10 @@ jobs:
           remove-haskell: 'true'
           remove-codeql: 'true'
           remove-docker-images: 'true'
+
+      # 2. Baixa o código do repositório
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       # 3. Configura o ambiente Java (JDK) e o cache do Gradle
       - name: Set up JDK 17 # O projeto oficial do Telegram requer JDK 17
