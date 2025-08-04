@@ -56,7 +56,13 @@ jobs:
             -Pandroid.injected.signing.key.alias=${{ secrets.RELEASE_KEY_ALIAS }} \
             -Pandroid.injected.signing.key.password=${{ secrets.RELEASE_KEY_PASSWORD }}
 
-      # 10. Cria uma Release em Rascunho e faz upload dos APKs
+      # 8. Libera espaço em disco
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo apt-get clean
+
+      # 9. Cria uma Release em Rascunho e faz upload dos APKs
       - name: Create Draft Release with APKs
         uses: softprops/action-gh-release@v2
         with:
@@ -74,17 +80,3 @@ jobs:
           files: |
             TMessagesProj/build/outputs/apk/debug/TMessagesProj-debug.apk
             TMessagesProj/build/outputs/apk/release/TMessagesProj-release.apk
-
-      # 8. Faz o upload do APK de Debug como artefato
-      # - name: Upload Debug APK
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: telegram-debug-apk
-      #     path: TMessagesProj/build/outputs/apk/debug/TMessagesProj-debug.apk
-
-      # 9. Faz o upload do APK de Release como artefato
-      # - name: Upload Release APK
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: telegram-release-apk
-      #     path: TMessagesProj/build/outputs/apk/release/TMessagesProj-release.apk
