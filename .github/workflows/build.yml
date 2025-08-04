@@ -2,7 +2,7 @@ name: Build Telegram Android (Official Source)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   workflow_dispatch:
 
 jobs:
@@ -80,4 +80,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: telegram-release-apk
+
           path: TMessagesProj/build/outputs/apk/release/TMessagesProj-release.apk
