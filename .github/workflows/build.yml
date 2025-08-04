@@ -23,9 +23,11 @@ jobs:
           remove-codeql: 'true'
           remove-docker-images: 'true'
 
-      # 2. Baixa o código do repositório
+      # 2. Baixa o código do repositório e seus submódulos
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
 
       # 3. Configura o ambiente Java (JDK) e o cache do Gradle
       - name: Set up JDK 17 # O projeto oficial do Telegram requer JDK 17
@@ -35,13 +37,37 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 4. Cria o arquivo google-services.json a partir dos segredos
+      # 4. Configura o NDK (Necessário para compilar bibliotecas nativas)
+      - name: Set up NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r21e
+
+      # 5. Configura o Go (Dependência do BoringSSL)
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.18'
+
+      # 6. Configura o Python (Dependência do FFmpeg)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # 7. Compila as bibliotecas nativas
+      - name: Build Native Libraries
+        run: |
+          cd TMessagesProj/jni
+          ./build_native.sh arm64-v8a
+
+      # 8. Cria o arquivo google-services.json a partir dos segredos
       - name: Create google-services.json
         run: |
           echo "Creating google-services.json in TMessagesProj/"
           echo "${{ secrets.GOOGLE_SERVICES_BASE64 }}" | base64 --decode > TMessagesProj/google-services.json
 
-      # 5. Cria o arquivo BuildVars.java com os segredos
+      # 9. Cria o arquivo BuildVars.java com os segredos
       #    Caminho e nome de arquivo corrigidos para o projeto oficial
       - name: Inject secrets into BuildVars.java
         run: |
@@ -49,17 +75,17 @@ jobs:
           sed -i "s|public static int APP_ID = .*;|public static int APP_ID = ${{ secrets.API_ID }};|g" TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
         shell: bash
 
-      # 6. Decodifica e salva o arquivo keystore no local correto
+      # 10. Decodifica e salva o arquivo keystore no local correto
       - name: Decode Keystore
         run: |
           mkdir -p TMessagesProj/config
           echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > TMessagesProj/config/release.keystore
 
-      # 7. Concede permissão de execução para o gradlew
+      # 11. Concede permissão de execução para o gradlew
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # 8. Compila a versão de Release
+      # 12. Compila a versão de Release
       - name: Build Release APK
         run: |
           ./gradlew assembleRelease \
@@ -67,9 +93,8 @@ jobs:
             -Pandroid.injected.signing.store.password=${{ secrets.RELEASE_KEYSTORE_PASSWORD }} \
             -Pandroid.injected.signing.key.alias=${{ secrets.RELEASE_KEY_ALIAS }} \
             -Pandroid.injected.signing.key.password=${{ secrets.RELEASE_KEY_PASSWORD }} \
-            -PabiFilters=arm64-v8a
 
-      # 9. Cria uma Release em Rascunho e faz upload do APK
+      # 13. Cria uma Release em Rascunho e faz upload do APK
       - name: Create Draft Release with APKs
         uses: softprops/action-gh-release@v2
         with:
