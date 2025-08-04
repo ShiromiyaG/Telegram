@@ -17,7 +17,7 @@ jobs:
       # 2. Libera espaço em disco no runner
       # O build do Telegram consome muito espaço, então removemos ferramentas não utilizadas
       - name: Maximize build space
-        uses: easimon/maximize-build-space-action@v10
+        uses: easimon/maximize-build-space@v8
         with:
           root-reserve-mb: 512
           swap-size-mb: 1024
