@@ -23,8 +23,3 @@ allprojects {
         maven { url "https://maven.arthenica.com/public" }
     }
 }
-
-dependencies {
-    // ...other dependencies...
-    implementation 'com.arthenica:ffmpeg-kit-full-gpl:5.1.LTS'
-}
