@@ -46,8 +46,13 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # 7. Compila a versão de Release (o build de Debug é gerado automaticamente)
-      #    Parâmetros de assinatura injetados de forma segura
+      # 7. Libera espaço em disco (MOVA PARA ANTES DO BUILD)
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo apt-get clean
+
+      # 8. Compila a versão de Release
       - name: Build Release APK
         run: |
           ./gradlew assembleRelease \
@@ -55,12 +60,6 @@ jobs:
             -Pandroid.injected.signing.store.password=${{ secrets.RELEASE_KEYSTORE_PASSWORD }} \
             -Pandroid.injected.signing.key.alias=${{ secrets.RELEASE_KEY_ALIAS }} \
             -Pandroid.injected.signing.key.password=${{ secrets.RELEASE_KEY_PASSWORD }}
-
-      # 8. Libera espaço em disco
-      - name: Free disk space
-        run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
-          sudo apt-get clean
 
       # 9. Cria uma Release em Rascunho e faz upload dos APKs
       - name: Create Draft Release with APKs
