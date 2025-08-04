@@ -37,6 +37,9 @@ jobs:
           echo "    public static String APP_HASH = \"${{ secrets.API_HASH }}\";" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
           echo "    public static int APP_ID = ${{ secrets.API_ID }};" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
           echo "    public static boolean isBeta = false;" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
+          echo "    public static boolean DEBUG_VERSION = false;" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
+          echo "    public static boolean LOGS_ENABLED = false;" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
+          echo "    public static boolean DEBUG_PRIVATE_VERSION = false;" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
           echo "}" >> TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
         shell: bash
 
