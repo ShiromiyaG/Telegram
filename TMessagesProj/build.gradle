@@ -110,7 +110,7 @@ android {
         multiDexEnabled true
 
         ndk {
-            abiFilters project.hasProperty('abiFilter') ? [project.getProperty('abiFilter')] : ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
+            abiFilters = project.hasProperty('abiFilter') ? [project.getProperty('abiFilter')] : ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
         }
 
         externalNativeBuild {
