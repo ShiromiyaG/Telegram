@@ -25,13 +25,23 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 4. Configura o NDK (Necessário para compilar bibliotecas nativas)
-      # O NDK exigido pelo projeto (r21e) não está disponível para hosts ARM64.
-      # Usamos uma versão mais nova que é compatível e a instalamos dinamicamente.
-      - name: Set up NDK
-        uses: nttld/setup-ndk@v1
-        with:
-          ndk-version: r26b
+      # 4. Configura o NDK manualmente para ARM64
+      # A action nttld/setup-ndk@v1 não suporta runners ARM64.
+      # Portanto, baixamos, descompactamos e configuramos o NDK manualmente.
+      - name: Set up NDK manually for ARM64
+        run: |
+          echo "Downloading NDK r26b..."
+          wget -q https://dl.google.com/android/repository/android-ndk-r26b-linux.zip
+          
+          echo "Unzipping NDK..."
+          unzip -q android-ndk-r26b-linux.zip
+          
+          echo "Setting ANDROID_NDK_HOME environment variable..."
+          echo "ANDROID_NDK_HOME=${{ github.workspace }}/android-ndk-r26b" >> $GITHUB_ENV
+          
+          echo "Verifying NDK installation for arm64..."
+          ls -l ${{ github.workspace }}/android-ndk-r26b/toolchains/llvm/prebuilt/
+          rm android-ndk-r26b-linux.zip
 
       # 5. Override NDK version in build.gradle
       # Forçamos o uso da versão do NDK que instalamos no passo anterior.
