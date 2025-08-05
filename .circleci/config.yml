@@ -61,8 +61,7 @@ jobs:
           name: Decode Keystore
           command: |
             mkdir -p TMessagesProj/config
-            echo $RELEASE_KEYSTORE_BASE64 | base64 --decode > TMessagesProj/config/release_encoded.keystore
-            cat TMessagesProj/config/release_encoded.keystore | base64 --decode > TMessagesProj/config/release.keystore
+            echo $RELEASE_KEYSTORE_BASE64 | base64 --decode > TMessagesProj/config/release.keystore
 
       # Permissão para gradlew
       - run:
