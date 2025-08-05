@@ -25,11 +25,14 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 4. Define os caminhos para o SDK e NDK instalados na instância
-      - name: Set up Android SDK & NDK Paths
+      # 4. Cria o arquivo local.properties para apontar para o SDK e NDK
+      #    Esta é a forma mais explícita de informar ao Gradle onde encontrar as dependências.
+      - name: Create local.properties
         run: |
-          echo "ANDROID_HOME=/usr/local/lib/android-sdk" >> $GITHUB_ENV
-          echo "ANDROID_NDK_HOME=/usr/local/lib/android-sdk/ndk/26.1.10909125" >> $GITHUB_ENV
+          echo "sdk.dir=/usr/local/lib/android-sdk" > local.properties
+          echo "ndk.dir=/usr/local/lib/android-sdk/ndk/26.1.10909125" >> local.properties
+          echo "--- local.properties content ---"
+          cat local.properties
 
       # 8. Cria o arquivo google-services.json a partir dos segredos
       - name: Create google-services.json
