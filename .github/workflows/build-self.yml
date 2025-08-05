@@ -65,18 +65,13 @@ jobs:
           echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > TMessagesProj/config/release.keystore
 
       # 11. Garante CMake ARM64 do sistema no PATH
-      - name: Use system CMake for ARM64
+      - name: Install CMake
         run: |
-          which cmake
-          cmake --version
-          echo "CMAKE_PATH=$(which cmake)" >> $GITHUB_ENV
-          echo "PATH=/usr/bin:$PATH" >> $GITHUB_ENV
+          sudo apt-get update
+          sudo apt-get install --reinstall -y cmake
 
       # 12. Compila a versão de Release
       - name: Build Release APK
-        env:
-          PATH: /usr/bin:${PATH}
-          CMAKE_EXECUTABLE: ${{ env.CMAKE_PATH }}
         run: |
           ./gradlew assembleRelease \
             -Pandroid.injected.signing.store.file=${{ github.workspace }}/TMessagesProj/config/release.keystore \
