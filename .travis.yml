@@ -55,6 +55,7 @@ script:
 
   - echo "Decodificando google-services.json..."
   # Decodifica o segredo e cria o arquivo google-services.json
+  - echo "$GOOGLE_SERVICES_BASE64" | wc -c
   - echo "$GOOGLE_SERVICES_BASE64" | base64 --decode > TMessagesProj/google-services.json
 
   - echo "Injetando segredos no BuildVars.java..."
@@ -86,6 +87,6 @@ deploy:
   file_glob: true
   file: "TMessagesProj/build/outputs/apk/release/*.apk"
   skip_cleanup: true
-  draft: true 
+  draft: true
   on:
     tags: true # Adiciona um release somente quando a build é disparada por uma tag
