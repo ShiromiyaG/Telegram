@@ -34,6 +34,16 @@ jobs:
           echo "--- local.properties content ---"
           cat local.properties
 
+      # 5. Override NDK version in build.gradle
+      # O NDK exigido (21.4.7075529) não está disponível para hosts ARM64.
+      # Vamos forçar o uso de uma versão mais nova que é compatível.
+      - name: Force newer NDK version
+        run: |
+          echo "Overriding NDK version in TMessagesProj/build.gradle..."
+          sed -i 's/ndkVersion "21.4.7075529"/ndkVersion "26.1.10909125"/' TMessagesProj/build.gradle
+          echo "Done. New version line:"
+          grep 'ndkVersion' TMessagesProj/build.gradle
+
       # 8. Cria o arquivo google-services.json a partir dos segredos
       - name: Create google-services.json
         run: |
