@@ -672,11 +672,15 @@ target_link_libraries(${NATIVE_LIB}
         cpufeatures
         breakpad)
 
+find_library(log-lib log)
+find_library(cpufeatures-lib cpufeatures)
+# target_link_libraries(${NATIVE_LIB} ... ${cpufeatures-lib} ...)
+
 #if (${ANDROID_ABI} STREQUAL "x86" OR ${ANDROID_ABI} STREQUAL "x86_64")
 #    target_link_libraries(${NATIVE_LIB}
 #            -Wl,--whole-archive vpxasm -Wl,--no-whole-archive
 #            c)
 #endif()
 
-include(AndroidNdkModules)
-android_ndk_import_module_cpufeatures()
+#include(AndroidNdkModules)
+#android_ndk_import_module_cpufeatures()
