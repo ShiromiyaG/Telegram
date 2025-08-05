@@ -1,0 +1,91 @@
+# Linguagem de programação e sistema operacional para a build
+language: android
+dist: focal # Ubuntu 20.04, uma versão mais recente e recomendada
+
+# Versão do JDK a ser utilizada para a build
+jdk:
+  - openjdk17
+
+# Variáveis de ambiente
+# ATENÇÃO: As variáveis com valores sensíveis DEVERÃO ser configuradas
+# no painel do Travis CI como "Environment Variables" ou "Secrets".
+# Não as declare aqui com os valores reais!
+env:
+  global:
+    - GOOGLE_SERVICES_BASE64=$GOOGLE_SERVICES_BASE64
+    - RELEASE_KEYSTORE_BASE64=$RELEASE_KEYSTORE_BASE64
+    - RELEASE_KEYSTORE_PASSWORD=$RELEASE_KEYSTORE_PASSWORD
+    - RELEASE_KEY_ALIAS=$RELEASE_KEY_ALIAS
+    - RELEASE_KEY_PASSWORD=$RELEASE_KEY_PASSWORD
+    - API_HASH=$API_HASH
+    - API_ID=$API_ID
+    - GITHUB_TOKEN=$GITHUB_TOKEN # Token para o deploy
+
+# Cache para acelerar as builds futuras
+cache:
+  directories:
+    - $HOME/.gradle/caches
+    - $HOME/.gradle/wrapper
+
+# Configuração do Android SDK
+android:
+  components:
+    - tools
+    - platform-tools
+    - build-tools-34.0.0
+    - android-34
+  # Desabilita a licença para evitar prompts interativos
+  licenses:
+    - 'android-sdk-license-.+'
+
+# Etapas que serão executadas antes do script principal
+before_install:
+  - echo "Baixando e configurando o Android NDK..."
+  # Baixa, descompacta o NDK e configura as variáveis de ambiente
+  - wget https://dl.google.com/android/repository/android-ndk-r26b-linux.zip
+  - unzip -q android-ndk-r26b-linux.zip -d $HOME
+  - export ANDROID_NDK_HOME=$HOME/android-ndk-r26b
+  - export PATH=$HOME/android-ndk-r26b:$PATH
+
+# Script principal da build
+script:
+  - echo "Forçando a versão do NDK no build.gradle..."
+  # Injeta a versão correta do NDK usando sed
+  - sed -i 's/ndkVersion "21.4.7075529"/ndkVersion "26.1.10909125"/' TMessagesProj/build.gradle
+
+  - echo "Decodificando google-services.json..."
+  # Decodifica o segredo e cria o arquivo google-services.json
+  - echo "$GOOGLE_SERVICES_BASE64" | base64 --decode > TMessagesProj/google-services.json
+
+  - echo "Injetando segredos no BuildVars.java..."
+  # Usa sed para substituir as variáveis de API
+  - sed -i "s|public static String APP_HASH = \".*\";|public static String APP_HASH = \"$API_HASH\";|g" TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
+  - sed -i "s|public static int APP_ID = .*;|public static int APP_ID = $API_ID;|g" TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
+
+  - echo "Decodificando o Keystore..."
+  # Cria o diretório e decodifica o arquivo de keystore
+  - mkdir -p TMessagesProj/config
+  - echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode > TMessagesProj/config/release.keystore
+
+  - echo "Concedendo permissão de execução para o gradlew..."
+  - chmod +x gradlew
+
+  - echo "Executando a build de release..."
+  # Executa a build de release, passando os dados de assinatura
+  - ./gradlew assembleRelease \
+      -Pandroid.injected.signing.store.file=$TRAVIS_BUILD_DIR/TMessagesProj/config/release.keystore \
+      -Pandroid.injected.signing.store.password=$RELEASE_KEYSTORE_PASSWORD \
+      -Pandroid.injected.signing.key.alias=$RELEASE_KEY_ALIAS \
+      -Pandroid.injected.signing.key.password=$RELEASE_KEY_PASSWORD
+
+# Etapa de deploy para o GitHub Releases
+# Só será executada para a branch 'main' e se a build for bem-sucedida
+deploy:
+  provider: releases
+  api_key: "$GITHUB_TOKEN"
+  file_glob: true
+  file: "TMessagesProj/build/outputs/apk/release/*.apk"
+  skip_cleanup: true
+  draft: true 
+  on:
+    tags: true # Adiciona um release somente quando a build é disparada por uma tag

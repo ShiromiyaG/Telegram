@@ -10,11 +10,6 @@ jobs:
     # 1. Usa o runner auto-hospedado na Oracle Cloud ARM
     runs-on: self-hosted
 
-    # Adiciona a especificação do container para rodar os passos em um ambiente x64 emulado
-    container:
-      image: eclipse-temurin:17-jdk-jammy # Imagem x64 com Ubuntu 22.04 e JDK 17
-      platform: linux/amd64
-
     steps:
       # 2. Baixa o código do repositório
       - name: Checkout repository
@@ -68,23 +63,14 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # 12. Exporta os segredos de assinatura como variáveis de ambiente
-      # Esta é uma prática mais segura do que passá-los na linha de comando.
-      - name: Set up signing secrets as environment variables
-        run: |
-          echo "SIGNING_STORE_FILE=${{ github.workspace }}/TMessagesProj/config/release.keystore" >> $GITHUB_ENV
-          echo "SIGNING_STORE_PASSWORD=${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
-          echo "SIGNING_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS }}" >> $GITHUB_ENV
-          echo "SIGNING_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD }}" >> $GITHUB_ENV
-
       # 12. Compila a versão de Release
       - name: Build Release APK
-        run: ./gradlew assembleRelease
-        env:
-          ORG_GRADLE_PROJECT_android_injected_signing_store_file: ${{ env.SIGNING_STORE_FILE }}
-          ORG_GRADLE_PROJECT_android_injected_signing_store_password: ${{ env.SIGNING_STORE_PASSWORD }}
-          ORG_GRADLE_PROJECT_android_injected_signing_key_alias: ${{ env.SIGNING_KEY_ALIAS }}
-          ORG_GRADLE_PROJECT_android_injected_signing_key_password: ${{ env.SIGNING_KEY_PASSWORD }}
+        run: |
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=${{ github.workspace }}/TMessagesProj/config/release.keystore \
+            -Pandroid.injected.signing.store.password=${{ secrets.RELEASE_KEYSTORE_PASSWORD }} \
+            -Pandroid.injected.signing.key.alias=${{ secrets.RELEASE_KEY_ALIAS }} \
+            -Pandroid.injected.signing.key.password=${{ secrets.RELEASE_KEY_PASSWORD }} \
 
       # 13. Cria uma Release em Rascunho e faz upload do APK
       - name: Create Draft Release with APKs
