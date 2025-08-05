@@ -31,7 +31,7 @@ jobs:
         run: |
           echo "sdk.dir=/usr/local/lib/android-sdk" > local.properties
           echo "ndk.dir=/usr/local/lib/android-sdk/ndk/26.1.10909125" >> local.properties
-          echo "cmake.dir=/usr/bin" >> local.properties
+          echo "cmake.dir=/usr" >> local.properties
           echo "--- local.properties content ---"
           cat local.properties
 
