@@ -25,7 +25,9 @@ allprojects {
 }
 
 android {
-    ndk {
-        abiFilters project.hasProperty('ABI_FILTERS') ? project.ABI_FILTERS.split(',') : []
+    defaultConfig {
+        ndk {
+            abiFilters project.hasProperty('ABI_FILTERS') ? project.ABI_FILTERS.split(',') : []
+        }
     }
 }
