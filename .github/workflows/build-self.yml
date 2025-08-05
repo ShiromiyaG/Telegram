@@ -64,9 +64,13 @@ jobs:
           mkdir -p TMessagesProj/config
           echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > TMessagesProj/config/release.keystore
 
-      # 11. Concede permissão de execução para o gradlew
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      # 11. Garante CMake ARM64 do sistema no PATH
+      - name: Use system CMake for ARM64
+        run: |
+          which cmake
+          cmake --version
+          echo "CMAKE_PATH=$(which cmake)" >> $GITHUB_ENV
+          echo "PATH=/usr/bin:$PATH" >> $GITHUB_ENV
 
       # 12. Compila a versão de Release
       - name: Build Release APK
@@ -78,7 +82,7 @@ jobs:
             -Pandroid.injected.signing.store.file=${{ github.workspace }}/TMessagesProj/config/release.keystore \
             -Pandroid.injected.signing.store.password=${{ secrets.RELEASE_KEYSTORE_PASSWORD }} \
             -Pandroid.injected.signing.key.alias=${{ secrets.RELEASE_KEY_ALIAS }} \
-            -Pandroid.injected.signing.key.password=${{ secrets.RELEASE_KEY_PASSWORD }} \
+            -Pandroid.injected.signing.key.password=${{ secrets.RELEASE_KEY_PASSWORD }}
 
       # 13. Cria uma Release em Rascunho e faz upload do APK
       - name: Create Draft Release with APKs
