@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     # 1. Usa o runner auto-hospedado na Oracle Cloud ARM
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux, ARM64]
 
     steps:
       # 2. Baixa o código do repositório
@@ -25,10 +25,11 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 4. Aponta para o NDK já instalado na instância
-      - name: Set up NDK Path
-        run: echo "ANDROID_NDK_HOME=/usr/local/lib/android-ndk-r21e" >> $GITHUB_ENV
-
+      # 4. Define os caminhos para o SDK e NDK instalados na instância
+      - name: Set up Android SDK & NDK Paths
+        run: |
+          echo "ANDROID_HOME=/usr/local/lib/android-sdk" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=/usr/local/lib/android-ndk-r21e" >> $GITHUB_ENV
 
       # 8. Cria o arquivo google-services.json a partir dos segredos
       - name: Create google-services.json
