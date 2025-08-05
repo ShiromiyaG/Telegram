@@ -68,7 +68,8 @@ jobs:
       - name: Install CMake
         run: |
           sudo apt-get update
-          sudo apt-get install --reinstall -y cmake
+          sudo apt-get install --yes cmake
+          cmake --version
 
       # 12. Compila a versão de Release
       - name: Build Release APK
