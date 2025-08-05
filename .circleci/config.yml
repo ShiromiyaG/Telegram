@@ -2,6 +2,7 @@ version: 2.1
 
 jobs:
   build:
+    context: android-signing-secrets
     docker:
       - image: cimg/openjdk:17.0  # Imagem com JDK 17
     working_directory: ~/project
