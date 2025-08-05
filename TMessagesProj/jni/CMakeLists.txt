@@ -669,7 +669,7 @@ target_link_libraries(${NATIVE_LIB}
         EGL
         android
         OpenSLES
-        cpufeatures
+        ${cpufeatures-lib}
         breakpad)
 
 find_library(log-lib log)
