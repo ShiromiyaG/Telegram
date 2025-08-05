@@ -70,6 +70,9 @@ jobs:
 
       # 12. Compila a versão de Release
       - name: Build Release APK
+        env:
+          PATH: /usr/bin:${PATH}
+          CMAKE_EXECUTABLE: ${{ env.CMAKE_PATH }}
         run: |
           ./gradlew assembleRelease \
             -Pandroid.injected.signing.store.file=${{ github.workspace }}/TMessagesProj/config/release.keystore \
