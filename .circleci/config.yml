@@ -46,7 +46,8 @@ jobs:
       - run:
           name: Create google-services.json
           command: |
-            echo $GOOGLE_SERVICES_BASE64 | base64 --decode > TMessagesProj/google-services.json
+            echo $GOOGLE_SERVICES_BASE64 | base64 --decode > TMessagesProj/google-services_encoded.json
+            cat TMessagesProj/google-services_encoded.json | base64 --decode > TMessagesProj/google-services.json
 
       # Injeta segredos no BuildVars.java
       - run:
@@ -60,7 +61,8 @@ jobs:
           name: Decode Keystore
           command: |
             mkdir -p TMessagesProj/config
-            echo $RELEASE_KEYSTORE_BASE64 | base64 --decode > TMessagesProj/config/release.keystore
+            echo $RELEASE_KEYSTORE_BASE64 | base64 --decode > TMessagesProj/config/release_encoded.keystore
+            cat TMessagesProj/config/release_encoded.keystore | base64 --decode > TMessagesProj/config/release.keystore
 
       # Permissão para gradlew
       - run:
