@@ -25,21 +25,18 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 4. Cria o arquivo local.properties para apontar para o SDK e NDK
-      #    Esta é a forma mais explícita de informar ao Gradle onde encontrar as dependências.
-      - name: Create local.properties
-        run: |
-          echo "sdk.dir=/usr/local/lib/android-sdk" > local.properties
-          echo "ndk.dir=/usr/local/lib/android-sdk/ndk/26.1.10909125" >> local.properties
-          echo "--- local.properties content ---"
-          cat local.properties
+      # 4. Configura o NDK (Necessário para compilar bibliotecas nativas)
+      # O NDK exigido pelo projeto (r21e) não está disponível para hosts ARM64.
+      # Usamos uma versão mais nova que é compatível e a instalamos dinamicamente.
+      - name: Set up NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r26b
 
       # 5. Override NDK version in build.gradle
-      # O NDK exigido (21.4.7075529) não está disponível para hosts ARM64.
-      # Vamos forçar o uso de uma versão mais nova que é compatível.
+      # Forçamos o uso da versão do NDK que instalamos no passo anterior.
       - name: Force newer NDK version
         run: |
-          echo "Overriding NDK version in TMessagesProj/build.gradle..."
           sed -i 's/ndkVersion "21.4.7075529"/ndkVersion "26.1.10909125"/' TMessagesProj/build.gradle
           echo "Done. New version line:"
           grep 'ndkVersion' TMessagesProj/build.gradle
@@ -64,13 +61,9 @@ jobs:
           mkdir -p TMessagesProj/config
           echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > TMessagesProj/config/release.keystore
 
-      # 11. Instala o CMake e concede permissão de execução para o gradlew
-      - name: Prepare build tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes cmake
-          cmake --version
-          chmod +x gradlew
+      # 11. Concede permissão de execução para o gradlew
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
       # 12. Compila a versão de Release
       - name: Build Release APK
@@ -79,7 +72,7 @@ jobs:
             -Pandroid.injected.signing.store.file=${{ github.workspace }}/TMessagesProj/config/release.keystore \
             -Pandroid.injected.signing.store.password=${{ secrets.RELEASE_KEYSTORE_PASSWORD }} \
             -Pandroid.injected.signing.key.alias=${{ secrets.RELEASE_KEY_ALIAS }} \
-            -Pandroid.injected.signing.key.password=${{ secrets.RELEASE_KEY_PASSWORD }}
+            -Pandroid.injected.signing.key.password=${{ secrets.RELEASE_KEY_PASSWORD }} \
 
       # 13. Cria uma Release em Rascunho e faz upload do APK
       - name: Create Draft Release with APKs
