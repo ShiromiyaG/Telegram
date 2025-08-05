@@ -1,0 +1,77 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: cimg/openjdk:17.0  # Imagem com JDK 17
+    working_directory: ~/project
+    steps:
+      - checkout
+
+      # Libera espaço (CircleCI já é enxuto, mas pode remover caches)
+      - run:
+          name: Clean up space
+          command: |
+            sudo apt-get clean
+            sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+
+      # Instala dependências necessárias
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y unzip wget
+
+      # Baixa e configura o Android NDK
+      - run:
+          name: Set up NDK
+          command: |
+            wget https://dl.google.com/android/repository/android-ndk-r21e-linux-x86_64.zip
+            unzip -q android-ndk-r21e-linux-x86_64.zip
+            echo 'export ANDROID_NDK_HOME=$PWD/android-ndk-r21e' >> $BASH_ENV
+            echo 'export PATH=$PATH:$PWD/android-ndk-r21e' >> $BASH_ENV
+
+      # Cria o arquivo google-services.json
+      - run:
+          name: Create google-services.json
+          command: |
+            echo $GOOGLE_SERVICES_BASE64 | base64 --decode > TMessagesProj/google-services.json
+
+      # Injeta segredos no BuildVars.java
+      - run:
+          name: Inject secrets into BuildVars.java
+          command: |
+            sed -i "s|public static String APP_HASH = \".*\";|public static String APP_HASH = \"$API_HASH\";|g" TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
+            sed -i "s|public static int APP_ID = .*;|public static int APP_ID = $API_ID;|g" TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
+
+      # Decodifica o keystore
+      - run:
+          name: Decode Keystore
+          command: |
+            mkdir -p TMessagesProj/config
+            echo $RELEASE_KEYSTORE_BASE64 | base64 --decode > TMessagesProj/config/release.keystore
+
+      # Permissão para gradlew
+      - run:
+          name: Grant execute permission for gradlew
+          command: chmod +x gradlew
+
+      # Build APK Release
+      - run:
+          name: Build Release APK
+          command: |
+            ./gradlew assembleRelease \
+              -Pandroid.injected.signing.store.file=$PWD/TMessagesProj/config/release.keystore \
+              -Pandroid.injected.signing.store.password=$RELEASE_KEYSTORE_PASSWORD \
+              -Pandroid.injected.signing.key.alias=$RELEASE_KEY_ALIAS \
+              -Pandroid.injected.signing.key.password=$RELEASE_KEY_PASSWORD
+
+      # Salva o APK como artefato
+      - store_artifacts:
+          path: TMessagesProj/build/outputs/apk/release/TMessagesProj-release.apk
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build
